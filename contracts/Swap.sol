@@ -22,7 +22,8 @@ struct Order {
 
     
     mapping (uint256 => Order) swapOrder;
-    event SwapExecuted(  uint256 indexed orderId,address indexed user,  address tokenDeposited, uint256 amountDeposited,  address tokenRequested,  uint256 amountInReturn);
+
+    event DoneSwap(  uint256 indexed orderId,address indexed user,  address tokenDeposited, uint256 amountDeposited,  address tokenRequested,  uint256 amountInReturn);
    
 
 
@@ -67,7 +68,7 @@ function swapToken(uint256 _orderId) external {
     delete swapOrder[_orderId];
 
 
-    emit SwapExecuted(_orderId, msg.sender, tokenDeposited, amountDeposited, tokenRequested, amountInReturn);
+    emit DoneSwap(_orderId, msg.sender, tokenDeposited, amountDeposited, tokenRequested, amountInReturn);
 }
 
 
