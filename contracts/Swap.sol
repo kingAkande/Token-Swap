@@ -14,6 +14,7 @@ contract TokenSwap {
     }
 
 struct Order {
+    uint256 orderID;
     address tokenDeposited;
     address tokenRequested;
     uint256 amountDeposited;
@@ -38,37 +39,35 @@ struct Order {
     token.transferFrom(msg.sender, address(this), _amountDeposited);
     
     Order storage oRD = swapOrder[_id];
+    oRD.orderID = _id;
     oRD.amountDeposited = _amountDeposited;
     oRD.amountInReturn = _amountInReturn;
     oRD.tokenDeposited = _tokenDeposited;
     oRD.tokenRequested = _tokenRequested;
+
     orderCount++;
 }
 
 
-function swapToken(uint256 _orderId) external {
+function swapToken(uint256 _id) external {
     
-    Order memory order = swapOrder[_orderId];
-    require(order.amountDeposited > 0, "order complitted");
+    Order storage oRD = swapOrder[_id];
 
-    address tokenDeposited = order.tokenDeposited;
-    address tokenRequested = order.tokenRequested;
-    uint256 amountDeposited = order.amountDeposited;
-    uint256 amountInReturn = order.amountInReturn;
-
+    require(oRD.orderID != 0 , "Null Order");
+    require(oRD.amountDeposited > 0, "No Zero Deposit");
     
-    require(IERC20(tokenRequested).balanceOf(msg.sender) >= amountInReturn, "Insufficient balance");
-    require(IERC20(tokenRequested).allowance(msg.sender, address(this)) >= amountInReturn, "Not enough");
-    require(IERC20(tokenDeposited).balanceOf(address(this)) >= amountDeposited, "contract balance not enough");
+    require(IERC20(oRD.tokenRequested).balanceOf(msg.sender) >= oRD.amountInReturn, "Insufficient balance");
+    require(IERC20(oRD.tokenRequested).allowance(msg.sender, address(this)) >= oRD.amountInReturn, "Not enough");
+    require(IERC20(oRD.tokenDeposited).balanceOf(address(this)) >= oRD.amountDeposited, "contract balance not enough");
 
     // Transfer tokens
-    IERC20(tokenRequested).transferFrom(msg.sender, address(this), amountInReturn);
-    IERC20(tokenDeposited).transfer(msg.sender, amountDeposited);
+    IERC20(oRD.tokenRequested).transferFrom(msg.sender, address(this), oRD.amountInReturn);
+    IERC20(oRD.tokenDeposited).transfer(msg.sender, oRD.amountDeposited);
 
-    delete swapOrder[_orderId];
+    delete swapOrder[_id];
 
 
-    emit DoneSwap(_orderId, msg.sender, tokenDeposited, amountDeposited, tokenRequested, amountInReturn);
+    emit DoneSwap(_id, msg.sender, oRD.tokenDeposited, oRD.amountDeposited, oRD.tokenRequested, oRD.amountInReturn);
 }
 
 
