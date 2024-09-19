@@ -33,7 +33,7 @@ struct Order {
     require(token.balanceOf(msg.sender) >= _amountDeposited, "Insufficient amount");
     require(token.allowance(msg.sender, address(this)) >= _amountDeposited, "Not enough");
     
-    uint256 _id = orderCount;
+    uint256 _id = orderCount + 1;
 
     token.transferFrom(msg.sender, address(this), _amountDeposited);
     
