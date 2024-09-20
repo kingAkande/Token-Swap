@@ -81,6 +81,18 @@ describe("TokenSwap", function () {
 
     })
 
+    it("Should ensure token balance is not zero", async function () {
+
+      const{jubToken,tokenSwap} = await loadFixture(deployTokenSwap);
+
+      const amountDEpo = ethers.parseUnits("100", 18);
+
+      await jubToken.transfer( tokenSwap , amountDEpo);
+
+      await expect( jubToken.transfer( tokenSwap , amountDEpo)).to.be.revertedWith("Insufficient amount"); 
+
+
+    })
 
     
 
