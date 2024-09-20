@@ -6,8 +6,8 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 contract TokenSwap {
 
-    uint256 orderCount;
-    address owner;
+    uint256 public orderCount;
+    address public owner;
 
     constructor(){
         owner = msg.sender;

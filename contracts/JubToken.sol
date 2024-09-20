@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
-// Compatible with OpenZeppelin Contracts ^5.0.0
-pragma solidity ^0.8.20;
+
+pragma solidity ^0.8.24;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract OlaToken is ERC20("OlaToken", "OTK"){
+contract JubToken is ERC20("JubToken", "JBK"){
 
     address public owner;
 
@@ -19,3 +19,7 @@ contract OlaToken is ERC20("OlaToken", "OTK"){
         _mint(msg.sender, amount*1e18);
     }
 }
+
+// JubTokenModule#JubToken - 0xD8bb7E8405Ebadf298e9CCEFEb80AC0E7f559710
+
+//  https://sepolia-blockscout.lisk.com//address/0xD8bb7E8405Ebadf298e9CCEFEb80AC0E7f559710#code
