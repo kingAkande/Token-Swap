@@ -28,16 +28,15 @@ struct Order {
    
 
 
-   function depositToken( uint256 _amountDeposited, uint256 _amountInReturn, address _tokenDeposited,  address _tokenRequested) external {
+   function depositToken( address _tokenDeposited, uint256 _amountDeposited, address _tokenRequested, uint256 _amountInReturn) external {
 
     IERC20 token = IERC20(_tokenDeposited);
     require(token.balanceOf(msg.sender) >= _amountDeposited, "Insufficient amount");
     require(token.allowance(msg.sender, address(this)) >= _amountDeposited, "Not enough");
-    
-    uint256 _id = orderCount + 1;
 
     token.transferFrom(msg.sender, address(this), _amountDeposited);
-    
+
+    uint256 _id = orderCount + 1;
     Order storage oRD = swapOrder[_id];
     oRD.orderID = _id;
     oRD.amountDeposited = _amountDeposited;

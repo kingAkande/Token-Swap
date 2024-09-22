@@ -5,19 +5,21 @@ import {
 import { anyValue } from "@nomicfoundation/hardhat-chai-matchers/withArgs";
 import { expect } from "chai";
 import hre, { ethers } from "hardhat";
+import { token } from "../typechain-types/factories/@openzeppelin/contracts";
+import { parseUnits } from "ethers";
 
 describe("TokenSwap", function () {
 
 
   async function deployOlaToken() {
 
-    const [owner, otherAccount , ] = await hre.ethers.getSigners();
+    const [owner, otherAccount] = await hre.ethers.getSigners();
 
     const OlaToken = await hre.ethers.getContractFactory("OlaToken");
     const olaToken = await OlaToken.deploy();
 
     return { olaToken, owner, otherAccount };
-  }
+  }                 
 
 
   async function deployJubToken() {
@@ -36,16 +38,17 @@ describe("TokenSwap", function () {
 
     const [owner, otherAccount, addr1 , addr2] = await hre.ethers.getSigners();
 
+    const{olaToken} = await loadFixture(deployOlaToken); 
+    const{jubToken} = await loadFixture(deployJubToken);
+
     const TokenSwap = await hre.ethers.getContractFactory("TokenSwap");
     const tokenSwap = await TokenSwap.deploy();
-
-    const {olaToken} = await loadFixture(deployOlaToken);
-    
-    const{jubToken} = await loadFixture(deployJubToken);
 
     return {olaToken,jubToken, tokenSwap, owner, otherAccount , addr1 , addr2 };
 
   }
+
+
 
   describe("Deployment", function () {
 
@@ -53,48 +56,44 @@ describe("TokenSwap", function () {
 
       const{ tokenSwap, owner } = await loadFixture(deployTokenSwap);
 
-    expect (await tokenSwap.owner()).to.be.equal(owner);
+      expect (await tokenSwap.owner()).to.be.equal(owner);
 
     });
 
   });
 
   describe("depositToken" , function(){
-    it("Should ensure olaToken is an ERC20 token", async function () {
-
-      const{olaToken , tokenSwap} = await loadFixture(deployTokenSwap);
-      
-
-      expect (await olaToken.balanceOf("0x812BBC36857434A0B060464679E5B7Fcf81dD74B"));
-      const balance = await olaToken.balanceOf("0x812BBC36857434A0B060464679E5B7Fcf81dD74B");
-      console.log(`Balance: ${balance.toString()}`); 
-
-    })
-
-    it("Should ensure olaToken is an ERC20 token", async function () {
-
-      const{jubToken} = await loadFixture(deployTokenSwap);
-
-      expect (await jubToken.balanceOf("0xD8bb7E8405Ebadf298e9CCEFEb80AC0E7f559710"));
-      const balance = await jubToken.balanceOf("0xD8bb7E8405Ebadf298e9CCEFEb80AC0E7f559710");
-      console.log(`Balance: ${balance.toString()}`); 
-
-    })
-
-    it("Should ensure token balance is not zero", async function () {
-
-      const{jubToken,tokenSwap} = await loadFixture(deployTokenSwap);
-
-      const amountDEpo = ethers.parseUnits("100", 18);
-
-      await jubToken.transfer( tokenSwap , amountDEpo);
-
-      await expect( jubToken.transfer( tokenSwap , amountDEpo)).to.be.revertedWith("Insufficient amount"); 
-
-
-    })
-
     
+      it("Should ensure there is enough allowance", async function () {
+
+        const{jubToken,tokenSwap, olaToken} = await loadFixture(deployTokenSwap);
+
+        const amountDEpo = ethers.parseUnits("100", 18);
+        const amountINreturn = ethers.parseUnits("100", 18);
+
+        await expect( tokenSwap.depositToken(jubToken, amountDEpo , olaToken, amountINreturn )).to.be.revertedWith("Not enough");
+
+        //expect (await tokenSwap.orderCount()).to.equal(1);
+      })
+
+
+      it("Should ensure there is approval", async function () {
+
+        const{jubToken,tokenSwap, olaToken} = await loadFixture(deployTokenSwap);
+
+        const amountDEpo = ethers.parseUnits("100", 18);
+        const amountINreturn = ethers.parseUnits("100", 18);
+
+        await jubToken.approve(tokenSwap,amountDEpo);
+
+        await expect( tokenSwap.depositToken(jubToken, amountDEpo , olaToken, amountINreturn ));
+
+        //expect (await tokenSwap.orderCount()).to.equal(0);
+        //expect (await jubToken.balanceOf(tokenSwap)).to.equal(amountDEpo); 
+        
+      })
+
+
 
 
 
