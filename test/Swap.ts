@@ -46,6 +46,7 @@ describe("TokenSwap", function () {
 
     return {olaToken,jubToken, tokenSwap, owner, otherAccount , addr1 , addr2 };
 
+
   }
 
 
@@ -62,6 +63,7 @@ describe("TokenSwap", function () {
 
   });
 
+
   describe("depositToken" , function(){
     
       it("Should ensure there is enough allowance", async function () {
@@ -71,7 +73,7 @@ describe("TokenSwap", function () {
         const amountDEpo = ethers.parseUnits("100", 18);
         const amountINreturn = ethers.parseUnits("100", 18);
 
-        await expect( tokenSwap.depositToken(jubToken, amountDEpo , olaToken, amountINreturn )).to.be.revertedWith("Not enough");
+        await expect( tokenSwap.depositToken(jubToken, amountDEpo, olaToken, amountINreturn )).to.be.revertedWith("Not enough");
 
         //expect (await tokenSwap.orderCount()).to.equal(1);
       })
@@ -91,6 +93,28 @@ describe("TokenSwap", function () {
         //expect (await tokenSwap.orderCount()).to.equal(0);
         //expect (await jubToken.balanceOf(tokenSwap)).to.equal(amountDEpo); 
         
+      })
+
+
+      describe("swapToken", function(){
+
+        it("should ensure the swap is successsful", async function () {
+          
+          const {olaToken , tokenSwap , jubToken, addr1} = await loadFixture(deployTokenSwap);
+
+          const amountDEpo = ethers.parseUnits("100", 18);
+          const amountINreturn = ethers.parseUnits("100", 18);
+  
+          await jubToken.approve(tokenSwap,amountDEpo);
+          await expect( tokenSwap.depositToken(jubToken, amountDEpo , olaToken, amountINreturn ));
+          expect (await tokenSwap.orderCount()).to.equal(0);
+          await jubToken.transfer(addr1, ethers.parseUnits("200", 18));                                                        
+          await jubToken.connect(addr1).approve(tokenSwap, amountINreturn);
+
+        })
+
+
+
       })
 
 
